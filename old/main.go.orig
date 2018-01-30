@@ -1,0 +1,45 @@
+package main
+
+import (
+	"log"
+	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
+
+	"github.com/kellegous/fcgi"
+
+	"strings"
+)
+
+func main() {
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	c, err := fcgi.NewClient("tcp", "localhost:9000")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	http.HandleFunc("/",
+		func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == "POST" {
+				r.ParseForm()
+				fmt.Println(r.Form)
+				for k, v := range r.Form {
+			        fmt.Println("key:", k)
+			        fmt.Println("val:", strings.Join(v, ""))
+					if strings.Join(v, "") == "hack" {
+						fmt.Println("We have been hacked")
+						return
+					}
+			    }
+			}
+			params := fcgi.ParamsFromRequest(r)
+			params["SCRIPT_FILENAME"] = []string{filepath.Join(wd, "index.php")}
+			c.ServeHTTP(params, w, r)
+		})
+	log.Panic(http.ListenAndServe(":8080", nil))
+}

@@ -1,0 +1,26 @@
+version: '2'
+services:
+    fw:
+        build:
+            context: .
+            dockerfile: Docker/Go/Dockerfile
+        ports:
+            - "8080:8080"
+        networks:
+            - wf
+    php:
+        image: php:5.6-fpm
+        networks:
+            - wf
+        volumes:
+            - .:/app
+    web:
+        build:
+            context: .
+            dockerfile: Docker/nginx/Dockerfile
+        ports:
+            - "80:80"
+        networks:
+            - wf
+networks:
+    wf:
