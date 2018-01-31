@@ -48,14 +48,13 @@
             <textarea class="form-control" id="secret" rows="3" name="secret"></textarea>
             <p>Type <code>hack</code> in the textbox and submit it.</p>
             <button type="submit" class="btn btn-primary mb-2">Hack!</button>
+            <input type="hidden" name="hidden" value="can't see me">
         </form>
         <?php
-        echo "<pre>"; var_dump($_SERVER['REQUEST_URI']); echo "</pre>";
-        echo "<pre>"; var_dump($_POST); echo "</pre>";
+        echo "<h2>Request Method</h2><pre>"; var_dump($_SERVER["REQUEST_METHOD"]); echo "</pre>";
+        echo "<h2>Get</h2><pre>"; var_dump($_GET); echo "</pre>";
+        echo "<h2>Post</h2><pre>"; var_dump($_POST); echo "</pre>";
         ?>
-        <textarea name="name" rows="8" cols="80">
-            <?php var_dump($_SERVER); ?>
-        </textarea>
         <p>
             <small>
                 <?php echo PHP_VERSION; ?>

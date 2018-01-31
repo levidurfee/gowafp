@@ -1,3 +1,3 @@
 FROM nginx
-COPY Docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY Docker/nginx/nginx.conf /etc/nginx/conf.d/app.conf
 EXPOSE 80

@@ -46,7 +46,7 @@ func main() {
 
 	http.HandleFunc("/",
 		func(w http.ResponseWriter, r *http.Request) {
-            r.ParseForm()
+			r.ParseForm()
 			if r.Method == "POST" {
 				if !checkRequest(r) {
 					http.NotFound(w, r)
