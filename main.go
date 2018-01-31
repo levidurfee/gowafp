@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+// PhpHandler is a net/http Handler that starts the process for passing
+// the request to PHP-FPM.
 func PhpHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		env := make(map[string]string)
@@ -29,6 +31,7 @@ func PhpHandler() http.Handler {
 	})
 }
 
+// PhpPost is called when the user submits a POST request to the website.
 func PhpPost(env map[string]string, f *fcgiclient.FCGIClient, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	resp, err := f.PostForm(env, r.Form)
@@ -38,6 +41,8 @@ func PhpPost(env map[string]string, f *fcgiclient.FCGIClient, w http.ResponseWri
 	PhpProcessResponse(resp, w)
 }
 
+// PhpGet is called when a user visits any page and submits a GET request to the
+// website.
 func PhpGet(env map[string]string, f *fcgiclient.FCGIClient, w http.ResponseWriter) {
 	resp, err := f.Get(env)
 	if err != nil {
@@ -46,6 +51,8 @@ func PhpGet(env map[string]string, f *fcgiclient.FCGIClient, w http.ResponseWrit
 	PhpProcessResponse(resp, w)
 }
 
+// PhpProcessResponse is used by PhpPost and PhpGet to write the response back
+// to the user's browser.
 func PhpProcessResponse(resp *http.Response, w http.ResponseWriter) {
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -55,6 +62,7 @@ func PhpProcessResponse(resp *http.Response, w http.ResponseWriter) {
 	w.Write(content)
 }
 
+// AnalyzeRequest will analyze the request for malicious intent.
 func AnalyzeRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Analyzing Request")
