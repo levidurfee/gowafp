@@ -52,7 +52,6 @@
         </form>
         <?php
         echo "<h2>Request Method</h2><pre>"; var_dump($_SERVER["REQUEST_METHOD"]); echo "</pre>";
-        echo "<h2>Get</h2><pre>"; var_dump($_GET); echo "</pre>";
         echo "<h2>Post</h2><pre>"; var_dump($_POST); echo "</pre>";
         ?>
         <p>

@@ -1,59 +1,70 @@
 package main
 
 import (
-	"fmt"
+	"github.com/tomasen/fcgi_client"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
-
-	"github.com/kellegous/fcgi"
-
-	"strings"
+	"io/ioutil"
 )
 
-func php(wd string, w http.ResponseWriter, r *http.Request, c *fcgi.Client) {
-	params := fcgi.ParamsFromRequest(r)
-	params["SCRIPT_FILENAME"] = []string{filepath.Join(wd, "index.php")}
-	c.ServeHTTP(params, w, r)
+func PhpHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		env := make(map[string]string)
+        env["SCRIPT_FILENAME"] = "/app/index.php"
+
+		fcgi, err := fcgiclient.Dial("tcp", "php:9000")
+		defer fcgi.Close()
+
+		if err != nil {
+			log.Println("err:", err)
+		}
+
+		if r.Method == "POST" {
+			PhpPost(env, fcgi, w, r)
+
+			return
+		}
+
+		PhpGet(env, fcgi, w)
+	})
 }
 
-func checkRequest(r *http.Request) bool {
-	fmt.Println("Checking Request")
-
-	for k, v := range r.Form {
-		fmt.Println("key:", k)
-		fmt.Println("val:", strings.Join(v, ""))
-		if strings.Join(v, "") == "hack" {
-			fmt.Println("We have been hacked")
-			return false
-		}
+func PhpPost(env map[string]string, f *fcgiclient.FCGIClient, w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	resp, err := f.PostForm(env, r.Form)
+	if err != nil {
+			log.Println("err:", err)
+	}
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+			log.Println("err:", err)
 	}
 
-	return true
+	w.Write(content)
+}
+
+func PhpGet(env map[string]string, f *fcgiclient.FCGIClient, w http.ResponseWriter) {
+	resp, err := f.Get(env)
+	if err != nil {
+			log.Println("err:", err)
+	}
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+			log.Println("err:", err)
+	}
+
+	w.Write(content)
+}
+
+func AnalyzeRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Analyzing Request")
+		next.ServeHTTP(w, r)
+	})
 }
 
 func main() {
-	wd, err := os.Getwd()
-	if err != nil {
-		log.Panic(err)
-	}
+	http.Handle("/", AnalyzeRequest(PhpHandler()))
 
-	c, err := fcgi.NewClient("tcp", "php:9000")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	http.HandleFunc("/",
-		func(w http.ResponseWriter, r *http.Request) {
-			r.ParseForm()
-			if r.Method == "POST" {
-				if !checkRequest(r) {
-					http.NotFound(w, r)
-					return
-				}
-			}
-			php(wd, w, r, c)
-		})
-	log.Panic(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

@@ -1,7 +1,3 @@
-php-fpm -y conf
-go run main.go
+# gowafp
 
-visit localhost:8080
-
-
-https://golang.org/pkg/net/http/#Request
+`docker-compose up --build`
