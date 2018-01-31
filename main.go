@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
+	"regexp"
 )
 
 // PhpHandler is a net/http Handler that starts the process for passing
@@ -66,6 +68,14 @@ func PhpProcessResponse(resp *http.Response, w http.ResponseWriter) {
 func AnalyzeRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Analyzing Request")
+		r.ParseForm()
+		re, _ := regexp.Compile("script")
+		for _, v := range r.Form {
+			if re.MatchString(strings.Join(v, "")) {
+				log.Println("Attack Detected")
+				return
+			}
+		}
 		next.ServeHTTP(w, r)
 	})
 }
