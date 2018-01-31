@@ -2,15 +2,15 @@ package main
 
 import (
 	"github.com/tomasen/fcgi_client"
+	"io/ioutil"
 	"log"
 	"net/http"
-	"io/ioutil"
 )
 
 func PhpHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		env := make(map[string]string)
-        env["SCRIPT_FILENAME"] = "/app/index.php"
+		env["SCRIPT_FILENAME"] = "/app/index.php"
 
 		fcgi, err := fcgiclient.Dial("tcp", "php:9000")
 		defer fcgi.Close()
@@ -33,24 +33,23 @@ func PhpPost(env map[string]string, f *fcgiclient.FCGIClient, w http.ResponseWri
 	r.ParseForm()
 	resp, err := f.PostForm(env, r.Form)
 	if err != nil {
-			log.Println("err:", err)
+		log.Println("Post Err:", err)
 	}
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-			log.Println("err:", err)
-	}
-
-	w.Write(content)
+	PhpProcessResponse(resp, w)
 }
 
 func PhpGet(env map[string]string, f *fcgiclient.FCGIClient, w http.ResponseWriter) {
 	resp, err := f.Get(env)
 	if err != nil {
-			log.Println("err:", err)
+		log.Println("Get Err:", err)
 	}
+	PhpProcessResponse(resp, w)
+}
+
+func PhpProcessResponse(resp *http.Response, w http.ResponseWriter) {
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-			log.Println("err:", err)
+		log.Println("err:", err)
 	}
 
 	w.Write(content)
