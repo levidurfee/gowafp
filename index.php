@@ -46,7 +46,7 @@
         <form action="" method="POST">
             <label for="secret">Sensitive Data</label>
             <textarea class="form-control" id="secret" rows="3" name="secret"></textarea>
-            <p>Type <code>hack</code> in the textbox and submit it.</p>
+            <p>Type <code>&lt;script&gt;alert(&#39;hi&#39;)&lt;/script&gt;</code> in the textbox and submit it.</p>
             <button type="submit" class="btn btn-primary mb-2">Hack!</button>
             <input type="hidden" name="hidden" value="can't see me">
         </form>
