@@ -69,12 +69,13 @@ func AnalyzeRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Analyzing Request")
 		r.ParseForm()
+		log.Println(r.Form["secret"])
 		re, _ := regexp.Compile("script")
-		for _, v := range r.Form {
+		for k, v := range r.Form {
 			if re.MatchString(strings.Join(v, "")) {
 				log.Println("Attack Detected")
-				return
 			}
+			r.Form[k] = []string{"hii"}
 		}
 		next.ServeHTTP(w, r)
 	})
