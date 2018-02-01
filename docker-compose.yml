@@ -1,9 +1,7 @@
-version: '2'
+version: '3'
 services:
     fw:
-        build:
-            context: .
-            dockerfile: Docker/Go/Dockerfile
+        image: levidurfee/gowafp_fw
         ports:
             - "8080:8080"
         networks:
@@ -11,15 +9,19 @@ services:
         depends_on:
             - php
     php:
-        image: php:fpm
+        image: levidurfee/gowafp_php
+        deploy:
+            replicas: 5
+            restart_policy:
+              condition: on-failure
         networks:
             - wf
-        volumes:
-            - .:/app
     web:
-        build:
-            context: .
-            dockerfile: Docker/nginx/Dockerfile
+        image: levidurfee/gowafp_nginx
+        deploy:
+            replicas: 2
+            restart_policy:
+              condition: on-failure
         ports:
             - "80:80"
         depends_on:
