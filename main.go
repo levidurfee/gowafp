@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/tomasen/fcgi_client"
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/tomasen/fcgi_client"
 	"io/ioutil"
 	"log"
 	"net/http"
