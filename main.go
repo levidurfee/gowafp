@@ -75,7 +75,8 @@ func AnalyzeRequest(next http.Handler) http.Handler {
 			if re.MatchString(strings.Join(v, "")) {
 				log.Println("Attack Detected")
 			}
-			r.Form[k] = []string{"hii"}
+			//r.Form[k] = []string{"hii"}
+			r.Form[k] = v
 		}
 		next.ServeHTTP(w, r)
 	})
