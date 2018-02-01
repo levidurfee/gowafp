@@ -14,9 +14,9 @@ import (
 func PhpHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		env := make(map[string]string)
-		env["SCRIPT_FILENAME"] = "/app/index.php"
+		env["SCRIPT_FILENAME"] = "/app/index.php" // @TODO use config option
 
-		fcgi, err := fcgiclient.Dial("tcp", "php:9000")
+		fcgi, err := fcgiclient.Dial("tcp", "php:9000") // @TODO use config option
 		defer fcgi.Close()
 
 		if err != nil {
@@ -68,11 +68,11 @@ func PhpProcessResponse(resp *http.Response, w http.ResponseWriter) {
 func AnalyzeRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// log.Println("Analyzing Request")
-		p := bluemonday.UGCPolicy()
+		p := bluemonday.UGCPolicy() // @TODO move this
 		r.ParseForm()
 		for k, v := range r.Form {
-			unSanitized := strings.Join(v, "")
-			r.Form[k] = []string{p.Sanitize(unSanitized)}
+			unSanitized := strings.Join(v, "")            // @TODO check this
+			r.Form[k] = []string{p.Sanitize(unSanitized)} // @TODO check this
 			// @TODO check if the input had malicious code and log it
 		}
 		next.ServeHTTP(w, r)
