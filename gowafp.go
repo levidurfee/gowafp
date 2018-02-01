@@ -1,4 +1,4 @@
-package main
+package gowafp
 
 import (
 	"github.com/microcosm-cc/bluemonday"
@@ -24,38 +24,38 @@ func PhpHandler() http.Handler {
 		}
 
 		if r.Method == "POST" {
-			PhpPost(env, fcgi, w, r)
+			phpPost(env, fcgi, w, r)
 
 			return
 		}
 
-		PhpGet(env, fcgi, w)
+		phpGet(env, fcgi, w)
 	})
 }
 
-// PhpPost is called when the user submits a POST request to the website.
-func PhpPost(env map[string]string, f *fcgiclient.FCGIClient, w http.ResponseWriter, r *http.Request) {
+// phpPost is called when the user submits a POST request to the website.
+func phpPost(env map[string]string, f *fcgiclient.FCGIClient, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	resp, err := f.PostForm(env, r.Form)
 	if err != nil {
 		log.Println("Post Err:", err)
 	}
-	PhpProcessResponse(resp, w)
+	phpProcessResponse(resp, w)
 }
 
-// PhpGet is called when a user visits any page and submits a GET request to the
+// phpGet is called when a user visits any page and submits a GET request to the
 // website.
-func PhpGet(env map[string]string, f *fcgiclient.FCGIClient, w http.ResponseWriter) {
+func phpGet(env map[string]string, f *fcgiclient.FCGIClient, w http.ResponseWriter) {
 	resp, err := f.Get(env)
 	if err != nil {
 		log.Println("Get Err:", err)
 	}
-	PhpProcessResponse(resp, w)
+	phpProcessResponse(resp, w)
 }
 
-// PhpProcessResponse is used by PhpPost and PhpGet to write the response back
+// phpProcessResponse is used by phpPost and phpGet to write the response back
 // to the user's browser.
-func PhpProcessResponse(resp *http.Response, w http.ResponseWriter) {
+func phpProcessResponse(resp *http.Response, w http.ResponseWriter) {
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("err:", err)
@@ -77,10 +77,4 @@ func AnalyzeRequest(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r)
 	})
-}
-
-func main() {
-	http.Handle("/", AnalyzeRequest(PhpHandler()))
-
-	log.Fatal(http.ListenAndServe(":8080", nil))
 }
