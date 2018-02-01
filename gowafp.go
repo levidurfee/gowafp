@@ -9,6 +9,21 @@ import (
 	"strings"
 )
 
+// AnalyzeRequest will analyze the request for malicious intent.
+func AnalyzeRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// log.Println("Analyzing Request")
+		p := bluemonday.UGCPolicy() // @TODO move this
+		r.ParseForm()
+		for k, v := range r.Form {
+			unSanitized := strings.Join(v, "")            // @TODO check this
+			r.Form[k] = []string{p.Sanitize(unSanitized)} // @TODO check this
+			// @TODO check if the input had malicious code and log it
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // PhpHandler is a net/http Handler that starts the process for passing
 // the request to PHP-FPM.
 func PhpHandler() http.Handler {
@@ -62,19 +77,4 @@ func phpProcessResponse(resp *http.Response, w http.ResponseWriter) {
 	}
 
 	w.Write(content)
-}
-
-// AnalyzeRequest will analyze the request for malicious intent.
-func AnalyzeRequest(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// log.Println("Analyzing Request")
-		p := bluemonday.UGCPolicy() // @TODO move this
-		r.ParseForm()
-		for k, v := range r.Form {
-			unSanitized := strings.Join(v, "")            // @TODO check this
-			r.Form[k] = []string{p.Sanitize(unSanitized)} // @TODO check this
-			// @TODO check if the input had malicious code and log it
-		}
-		next.ServeHTTP(w, r)
-	})
 }

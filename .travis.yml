@@ -1,0 +1,5 @@
+language: go
+go:
+    - 1.8
+    - 1.9
+script: go get github.com/microcosm-cc/bluemonday && go get github.com/tomasen/fcgi_client
