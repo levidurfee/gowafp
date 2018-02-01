@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/tomasen/fcgi_client"
+	"github.com/microcosm-cc/bluemonday"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -68,6 +69,7 @@ func PhpProcessResponse(resp *http.Response, w http.ResponseWriter) {
 func AnalyzeRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Analyzing Request")
+		p := bluemonday.UGCPolicy()
 		r.ParseForm()
 		log.Println(r.Form["secret"])
 		re, _ := regexp.Compile("script")
@@ -75,8 +77,8 @@ func AnalyzeRequest(next http.Handler) http.Handler {
 			if re.MatchString(strings.Join(v, "")) {
 				log.Println("Attack Detected")
 			}
-			//r.Form[k] = []string{"hii"}
-			r.Form[k] = v
+			unSanitized := strings.Join(v, "")
+			r.Form[k] = []string{p.Sanitize(unSanitized)}
 		}
 		next.ServeHTTP(w, r)
 	})
