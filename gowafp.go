@@ -26,12 +26,12 @@ func AnalyzeRequest(next http.Handler) http.Handler {
 
 // PhpHandler is a net/http Handler that starts the process for passing
 // the request to PHP-FPM.
-func PhpHandler() http.Handler {
+func PhpHandler(script string, protocol string, address string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		env := make(map[string]string)
-		env["SCRIPT_FILENAME"] = "/app/index.php" // @TODO use config option
+		env["SCRIPT_FILENAME"] = script
 
-		fcgi, err := fcgiclient.Dial("tcp", "php:9000") // @TODO use config option
+		fcgi, err := fcgiclient.Dial(protocol, address)
 		defer fcgi.Close()
 
 		if err != nil {

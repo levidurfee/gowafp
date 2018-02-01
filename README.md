@@ -27,7 +27,7 @@ import (
 )
 
 func main() {
-	http.Handle("/", gowafp.AnalyzeRequest(gowafp.PhpHandler()))
+	http.Handle("/", gowafp.AnalyzeRequest(gowafp.PhpHandler("/app/index.php", "tcp", "127.0.0.1:9000")))
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
