@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"regexp"
 )
 
 // PhpHandler is a net/http Handler that starts the process for passing
@@ -68,17 +67,13 @@ func PhpProcessResponse(resp *http.Response, w http.ResponseWriter) {
 // AnalyzeRequest will analyze the request for malicious intent.
 func AnalyzeRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Analyzing Request")
+		// log.Println("Analyzing Request")
 		p := bluemonday.UGCPolicy()
 		r.ParseForm()
-		log.Println(r.Form["secret"])
-		re, _ := regexp.Compile("script")
 		for k, v := range r.Form {
-			if re.MatchString(strings.Join(v, "")) {
-				log.Println("Attack Detected")
-			}
 			unSanitized := strings.Join(v, "")
 			r.Form[k] = []string{p.Sanitize(unSanitized)}
+			// @TODO check if the input had malicious code and log it
 		}
 		next.ServeHTTP(w, r)
 	})
