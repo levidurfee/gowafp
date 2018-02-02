@@ -7,6 +7,20 @@ and your FastCGI application.
 
 nginx <- (tcp) -> gowafp <- (FastCGI) -> PHP-FPM
 
+The goal of this package is to prevent any attacks from reaching the FastCGI
+application. It should block all
+[SQL injection](https://www.owasp.org/index.php/SQL_Injection)
+attempts and filter
+[XSS](https://www.owasp.org/index.php/Cross-site_Scripting_(XSS))
+attempts.
+Maybe down the road it could also handle
+[CSRF](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)).
+
+An Application and the Web Application Firewall should not be on different
+servers. While the services out there do a good job, they're expensive and
+slower. Of course, you could recompile your web server with some additional
+features, but that is harder to deploy while scaling.
+
 ## usage
 
 First, you need to have Go get the repo.
