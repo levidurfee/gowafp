@@ -12,8 +12,7 @@ import (
 // AnalyzeRequest will analyze the request for malicious intent.
 func AnalyzeRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// log.Println("Analyzing Request")
-		p := bluemonday.UGCPolicy() // @TODO move this
+		p := bluemonday.UGCPolicy()
 		r.ParseForm()
 		for k, v := range r.Form {
 			unSanitized := strings.Join(v, "")            // @TODO check this
