@@ -9,7 +9,8 @@ import (
 	"strings"
 )
 
-// AnalyzeRequest will analyze the request for malicious intent.
+// AnalyzeRequest will filter any attempt at XSS and analyze the request for
+// other attacks.
 func AnalyzeRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		p := bluemonday.UGCPolicy()
