@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -18,6 +19,9 @@ func AnalyzeRequest(next http.Handler) http.Handler {
 		for k, v := range r.Form {
 			unSanitized := strings.Join(v, "")            // @TODO check this
 			r.Form[k] = []string{p.Sanitize(unSanitized)} // @TODO check this
+			if possibleSqlInjection(unSanitized) {
+				return
+			}
 			// @TODO check if the input had malicious code and log it
 		}
 		next.ServeHTTP(w, r)
@@ -77,4 +81,9 @@ func phpProcessResponse(resp *http.Response, w http.ResponseWriter) {
 	}
 
 	w.Write(content)
+}
+
+func possibleSqlInjection(value string) bool {
+	r, _ := regexp.Compile(`\w*((\%27)|(\'))((\%6F)|o|(\%4F))((\%72)|r|(\%52))`)
+	return r.MatchString(value)
 }
